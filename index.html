@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NIT SUPER APP - ROLE BASED CONTROL</title>
+  <!-- Chart.js Library kwa ajili ya kuonyesha Graph ya Takwimu za Wiki -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    * { 
+      box-sizing: border-box; 
+      margin: 0; 
+      padding: 0; 
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    body { background-color: #f0f2f5; padding: 10px; color: #333; padding-bottom: 75px; }
+    @media print { body { display: none !important; } }
+    header { 
+      text-align: center; margin-bottom: 10px; padding: 12px; 
+      background: #004488; color: white; border-radius: 8px;
+      position: relative;
+    }
+    
+    .lang-switcher {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.2);
+      border: 1px solid #fff;
+      color: white;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      cursor: pointer;
+    }
+    .app-logo-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .app-logo {
+      width: 85px; height: 85px; object-fit: cover; border-radius: 50%;
+      margin-bottom: 6px; border: 3px solid #fff; cursor: pointer;
+      background-color: #ffffff;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    }
+    .logo-edit-badge {
+      position: absolute; bottom: 8px; right: 0;
+      background: #f59e0b; color: #000; font-size: 0.6rem;
+      font-weight: bold; padding: 2px 5px; border-radius: 10px;
+      border: 1px solid #fff; pointer-events: none;
+      display: none;
+    }
+    header h1 { font-size: 1.1rem; }
+    header p { font-size: 0.7rem; opacity: 0.85; }
+    .tv-container {
+      width: 100%; margin-bottom: 15px; display: flex; flex-direction: column; align-items: center;
+    }
+    .flat-tv-screen {
+      width: 100%; background: #000; border: 8px solid #1a1a1a;
+      border-radius: 10px; box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      padding: 8px; overflow: hidden;
+    }
+    .tv-brand { color: #777; font-size: 0.55rem; text-align: center; margin-top: 2px; font-weight: bold; }
+    .tv-stand { width: 60px; height: 6px; background: #333; border-radius: 0 0 4px 4px; }
+    .ad-slider { display: flex; overflow-x: auto; gap: 10px; }
+    .ad-slider::-webkit-scrollbar { display: none; }
+    .ad-card {
+      flex: 0 0 100%; background: linear-gradient(135deg, #0d1b2a, #1b263b);
+      color: #fff; border-radius: 6px; padding: 10px; border: 1px solid #415a77;
+    }
+    .ad-card img, .ad-card video { width: 100%; max-height: 150px; object-fit: cover; border-radius: 4px; margin-top: 5px; }
+    .owner-panel {
+      background: #111827; color: #fff; padding: 12px; border-radius: 8px;
+      margin-bottom: 15px; border: 2px solid #f59e0b;
+    }
+    .owner-panel h2 { color: #f59e0b; font-size: 0.9rem; margin-bottom: 8px; }
+    
+    /* ANALYTICS STYLES FOR OWNER PANEL */
+    .analytics-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    .analytics-card {
+      background: #1f2937;
+      padding: 10px;
+      border-radius: 6px;
+      text-align: center;
+      border: 1px solid #374151;
+    }
+    .analytics-card .num {
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #f59e0b;
+    }
+    .analytics-card .lbl {
+      font-size: 0.65rem;
+      color: #9ca3af;
+    }
+    .chart-box {
+      background: #1f2937;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #374151;
+      margin-bottom: 12px;
+    }
+
+    .cr-panel {
+      background: #065f46; color: #fff; padding: 10px; border-radius: 8px;
+      margin-bottom: 15px; border: 1px solid #10b981;
+    }
+    .card-box {
+      background: white; padding: 12px; border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 12px;
+    }
+    h2 { font-size: 0.9rem; color: #004488; margin-bottom: 8px; }
+    
+    input, select, button, textarea {
+      width: 100%; padding: 9px; margin-bottom: 8px;
+      border: 1px solid #ccc; border-radius: 6px; font-size: 0.82rem;
+    }
+    button { background: #004488; color: white; font-weight: bold; border: none; cursor: pointer; }
+    .user-info-bar {
+      background: #e6f0fa; border: 1px solid #b8d5f3; padding: 8px;
+      border-radius: 6px; margin-bottom: 10px; display: flex;
+      justify-content: space-between; align-items: center; font-size: 0.75rem;
+    }
+    .group-tab-bar { display: flex; gap: 5px; margin-bottom: 8px; }
+    .group-tab-btn {
+      flex: 1; padding: 8px; font-size: 0.72rem; font-weight: bold;
+      background: #e2e8f0; color: #334155; border: none; border-radius: 6px; cursor: pointer;
+    }
+    .group-tab-btn.active-group { background: #075e54; color: white; }
+    .whatsapp-container {
+      background: #efeae2; border-radius: 8px; padding: 10px;
+      min-height: 280px; display: flex; flex-direction: column; border: 1px solid #d1d7db;
+    }
+    .whatsapp-header {
+      background: #075e54; color: white; padding: 8px 12px;
+      border-radius: 6px 6px 0 0; font-size: 0.8rem; font-weight: bold; margin: -10px -10px 10px -10px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .whatsapp-chat-box { flex: 1; display: flex; flex-direction: column; gap: 10px; overflow-y: auto; max-height: 350px; }
+    .chat-bubble {
+      background: #ffffff; padding: 8px 10px; border-radius: 8px;
+      max-width: 88%; box-shadow: 0 1px 2px rgba(0,0,0,0.15); align-self: flex-start; position: relative;
+    }
+    .chat-bubble.admin-msg { background: #dcf8c6; }
+    .chat-bubble.my-msg { background: #e7fce4; align-self: flex-end; }
+    
+    .chat-author { font-size: 0.68rem; font-weight: bold; color: #075e54; margin-bottom: 2px; }
+    .chat-text { font-size: 0.78rem; color: #111b21; line-height: 1.3; }
+    .quoted-reply {
+      background: rgba(0, 0, 0, 0.05); border-left: 3px solid #075e54;
+      padding: 4px 6px; font-size: 0.7rem; color: #555; border-radius: 4px; margin-bottom: 4px;
+    }
+    .chat-input-area {
+      display: flex; gap: 4px; align-items: center; margin-top: 8px; background: #fff; padding: 6px; border-radius: 8px;
+    }
+    .chat-input-area textarea { margin-bottom: 0; flex: 1; height: 38px; resize: none; padding: 8px; }
+    .chat-icon-btn { width: auto; padding: 8px 10px; background: #f1f5f9; color: #334155; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 0.8rem; }
+    .emoji-reaction-bar {
+      display: flex; gap: 6px; margin-top: 6px; padding-top: 4px;
+      border-top: 1px dashed #cbd5e1; align-items: center;
+    }
+    .emoji-btn {
+      background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 12px;
+      padding: 2px 6px; font-size: 0.7rem; width: auto; margin-bottom: 0; cursor: pointer;
+    }
+    .reply-btn-text { font-size: 0.65rem; color: #075e54; font-weight: bold; cursor: pointer; margin-left: auto; }
+    .bottom-nav {
+      position: fixed; bottom: 0; left: 0; right: 0; background: white;
+      display: flex; justify-content: space-around; padding: 6px 0;
+      border-top: 1px solid #ddd; z-index: 1000;
+    }
+    .nav-item { text-align: center; color: #666; font-size: 0.65rem; cursor: pointer; flex: 1; }
+    .nav-item.active { color: #004488; font-weight: bold; }
+    .nav-item .icon { font-size: 1.1rem; display: block; margin-bottom: 2px; }
+    .protected-box {
+      border: 1px solid #dcdcdc; background: #fff; padding: 10px;
+      border-radius: 6px; position: relative; overflow: hidden; margin-bottom: 8px;
+    }
+    .watermark-overlay {
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0; pointer-events: none;
+      display: flex; align-items: center; justify-content: center; font-size: 1rem;
+      color: rgba(0, 68, 136, 0.08); font-weight: bold; transform: rotate(-20deg); white-space: nowrap;
+    }
+    .badge { display: inline-block; background: #004488; color: white; padding: 2px 5px; font-size: 0.6rem; border-radius: 4px; }
+    .badge-owner { background: #f59e0b; color: #000; font-weight: bold; }
+    .badge-cr { background: #10b981; color: #fff; font-weight: bold; }
+    .market-media { width: 100%; max-height: 200px; object-fit: cover; border-radius: 6px; margin-top: 6px; }
+    
+    .course-manage-item {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #1f2937; padding: 6px 10px; border-radius: 4px; margin-bottom: 4px; font-size: 0.75rem;
+    }
+    .btn-delete-course {
+      background: #ef4444; color: white; border: none; padding: 2px 6px;
+      border-radius: 4px; width: auto; margin-bottom: 0; cursor: pointer;
+    }
+  </style>
+</head>
+<body oncontextmenu="return false;">
+  <header>
+    <select id="languageSelect" class="lang-switcher">
+      <option value="sw">Swahili 🇹🇿</option>
+      <option value="en">English 🇬🇧</option>
+    </select>
+    <div class="app-logo-wrapper">
+      <img src="https://via.placeholder.com/150/004488/FFFFFF?text=NIT+MIN" alt="Logo" class="app-logo" id="appLogo">
+      <span class="logo-edit-badge" id="logoEditBadge">✏️ Badili</span>
+    </div>
+    <input type="file" id="logoFileInput" accept="image/*" style="display: none;">
+    <h1>NIT SUPER APP</h1>
+    <p id="txtSubHeader">Portal & Campus Community</p>
+  </header>
+  <!-- SCREEN YA USAJILI -->
+  <div id="registrationScreen" class="card-box">
+    <h2 id="txtRegTitle">👤 Usajili Au Kuingia Kwenye App</h2>
+    
+    <label style="font-size: 0.72rem;" id="lblFullName">Majina Matatu (Herufi Kubwa):</label>
+    <input type="text" id="studentName" placeholder="Mfano: JOHN JOSEPH DEO" required style="text-transform: uppercase;">
+    <label style="font-size: 0.72rem;" id="lblPhone">Namba ya Simu (Tanzania):</label>
+    <input type="tel" id="studentPhone" placeholder="Mfano: 0712345678" required>
+    <label style="font-size: 0.72rem;" id="lblEmail">Gmail Account:</label>
+    <input type="email" id="studentGmail" placeholder="Mfano: student@gmail.com" required>
+    
+    <label style="font-size: 0.72rem;" id="lblCourseSelect">Chagua Kozi Yako:</label>
+    <select id="studentCourse">
+      <!-- BACHELOR DEGREES (20) -->
+      <optgroup label="--- DEGREE / BACHELOR DEGREES (20) ---">
+        <option value="BPLM - Logistics & Supply Chain">BPLM - Bachelor in Procurement & Logistics Management</option>
+        <option value="BLTM - Logistics & Transport Management">BLTM - Bachelor in Logistics & Transport Management</option>
+        <option value="BIT - Information Technology">BIT - Bachelor in Information Technology</option>
+        <option value="BCS - Computer Science">BCS - Bachelor in Computer Science</option>
+        <option value="BCIS - Cyber Security & Information Security">BCIS - Bachelor in Cyber Security & Info Security</option>
+        <option value="BBA - Business Administration">BBA - Bachelor in Business Administration</option>
+        <option value="BAME - Automobile Engineering">BAME - Bachelor in Automobile Engineering</option>
+        <option value="BME - Mechanical Engineering">BME - Bachelor in Mechanical Engineering</option>
+        <option value="BCEN - Civil Engineering">BCEN - Bachelor in Civil Engineering</option>
+        <option value="BEE - Electrical Engineering">BEE - Bachelor in Electrical Engineering</option>
+        <option value="BEET - Electronics & Telecommunication">BEET - Bachelor in Electronics & Telecoms</option>
+        <option value="BRAM - Railway Maintenance Engineering">BRAM - Bachelor in Railway Maintenance Eng.</option>
+        <option value="BAE - Aeronautical Engineering">BAE - Bachelor in Aeronautical Engineering</option>
+        <option value="BAM - Aircraft Maintenance Engineering">BAM - Bachelor in Aircraft Maintenance Eng.</option>
+        <option value="BAC - Accounting and Finance">BAC - Bachelor in Accounting and Finance</option>
+        <option value="BHRM - Human Resource Management">BHRM - Bachelor in Human Resource Management</option>
+        <option value="BMKT - Marketing & Public Relations">BMKT - Bachelor in Marketing & Public Relations</option>
+        <option value="BRTM - Road Transport Management">BRTM - Bachelor in Road Transport Management</option>
+        <option value="BAT - Aviation Transport Management">BAT - Bachelor in Aviation Transport Management</option>
+        <option value="BSE - Software Engineering">BSE - Bachelor in Software Engineering</option>
+      </optgroup>
+      <!-- ORDINARY DIPLOMA (15) -->
+      <optgroup label="--- ORDINARY DIPLOMA (15) ---">
+        <option value="DPLM - Diploma in Procurement & Logistics">DPLM - Diploma in Procurement & Logistics</option>
+        <option value="DLTM - Diploma in Logistics & Transport">DLTM - Diploma in Logistics & Transport</option>
+        <option value="DIT - Diploma in Information Technology">DIT - Diploma in Information Technology</option>
+        <option value="DCS - Diploma in Computer Science">DCS - Diploma in Computer Science</option>
+        <option value="DBA - Diploma in Business Administration">DBA - Diploma in Business Administration</option>
+        <option value="DAE - Diploma in Auto Engineering">DAE - Diploma in Auto Engineering</option>
+        <option value="DME - Diploma in Mechanical Engineering">DME - Diploma in Mechanical Engineering</option>
+        <option value="DCE - Diploma in Civil Engineering">DCE - Diploma in Civil Engineering</option>
+        <option value="DEE - Diploma in Electrical Engineering">DEE - Diploma in Electrical Engineering</option>
+        <option value="DRAM - Diploma in Railway Maintenance">DRAM - Diploma in Railway Maintenance</option>
+        <option value="DAC - Diploma in Accounting and Finance">DAC - Diploma in Accounting and Finance</option>
+        <option value="DHRM - Diploma in Human Resource">DHRM - Diploma in Human Resource Management</option>
+        <option value="DMKT - Diploma in Marketing">DMKT - Diploma in Marketing Management</option>
+        <option value="DRTM - Diploma in Road Transport">DRTM - Diploma in Road Transport Management</option>
+        <option value="DATM - Diploma in Aviation Management">DATM - Diploma in Aviation Transport Management</option>
+      </optgroup>
+      <!-- BASIC CERTIFICATES (10) -->
+      <optgroup label="--- BASIC CERTIFICATES (10) ---">
+        <option value="CPLM - Certificate in Procurement & Logistics">CPLM - Certificate in Procurement & Logistics</option>
+        <option value="CLTM - Certificate in Logistics & Transport">CLTM - Certificate in Logistics & Transport</option>
+        <option value="CIT - Certificate in Information Technology">CIT - Certificate in Information Technology</option>
+        <option value="CBA - Certificate in Business Administration">CBA - Certificate in Business Administration</option>
+        <option value="CAE - Certificate in Auto Engineering">CAE - Certificate in Auto Engineering</option>
+        <option value="CME - Certificate in Mechanical Engineering">CME - Certificate in Mechanical Engineering</option>
+        <option value="CAC - Certificate in Accounting">CAC - Certificate in Accounting</option>
+        <option value="CHRM - Certificate in Human Resource">CHRM - Certificate in Human Resource</option>
+        <option value="CMKT - Certificate in Marketing">CMKT - Certificate in Marketing</option>
+        <option value="CRTM - Certificate in Road Transport">CRTM - Certificate in Road Transport</option>
+      </optgroup>
+    </select>
+    <label style="font-size: 0.72rem;" id="lblYearSelect">Mwaka wa Masomo:</label>
+    <select id="studentYear">
+      <option value="Mwaka 1">Mwaka 1</option>
+      <option value="Mwaka 2">Mwaka 2</option>
+      <option value="Mwaka 3">Mwaka 3</option>
+    </select>
+    <label style="font-size: 0.72rem;" id="lblRoleSelect">Chagua Cheo Chako:</label>
+    <select id="userRoleSelect">
+      <option value="student">Mwanafunzi Wa Kawaida</option>
+      <option value="cr">CR (Class Representative)</option>
+      <option value="owner">Mmiliki wa Web (Super Admin)</option>
+    </select>
+    <div id="ownerPasswordGroup" style="display: none; background: #fffbe3; border: 1px solid #ffe58f; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+      <label style="font-size: 0.72rem; color: #856404; font-weight: bold;" id="lblOwnerPass">🔑 Weka Nenosiri la Mmiliki (Password):</label>
+      <input type="password" id="ownerPasswordInput" placeholder="Siri ya Mmiliki wa Web">
+    </div>
+    <div id="crPasswordGroup" style="display: none; background: #e6f4ea; border: 1px solid #a8dab5; padding: 8px; border-radius: 6px; margin-bottom: 8px;">
+      <label style="font-size: 0.72rem; color: #0d652d; font-weight: bold;" id="lblCrPass">🔑 Password ya CR (Jina la Mwisho Kubwa + 1234):</label>
+      <input type="password" id="crPasswordInput" placeholder="Mfano: DEO1234">
+    </div>
+    <button id="registerBtn">Ingia Kwenye App</button>
+  </div>
+  <!-- DASHBOARD -->
+  <div id="appDashboard" style="display: none;">
+    
+    <div class="user-info-bar">
+      <div>
+        <strong id="displayName"></strong> (<span id="displayYear"></span>) 
+        <span id="roleBadge" class="badge">MWANAFUNZI</span><br>
+        <span style="color: #004488; font-weight: bold;" id="displayCourse"></span>
+      </div>
+      <button style="width:auto; padding:5px 8px; font-size:0.65rem; background:#d9534f; color:white;" id="changeUserBtn">🚪 Badili Account</button>
+    </div>
+
+    <!-- OWNER PANEL (SUPER ADMIN DASHBOARD & ANALYTICS) -->
+    <div id="ownerControlPanel" class="owner-panel" style="display: none;">
+      <h2 id="txtOwnerHeader">👑 MMILIKI WA WEB (SUPER ADMIN DASHBOARD)</h2>
+      <p style="font-size:0.7rem; color:#ccc; margin-bottom:8px;" id="txtOwnerSub">Una mamlaka kamili ya kuweka Notes, Past Papers, Kozi na Kubadili Nembo.</p>
+
+      <!-- SEHEMU YA TAKWIMU / ANALYTICS FOR OWNER -->
+      <div style="background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid #374151; margin-bottom: 12px;">
+        <h3 style="font-size:0.8rem; color:#f59e0b; margin-bottom:8px;">📊 Takwimu na Mwenendo wa Web</h3>
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <div class="num" id="statTotalUsers">0</div>
+            <div class="lbl">Watu Walioingia / Kusajiliwa</div>
+          </div>
+          <div class="analytics-card">
+            <div class="num" style="color: #10b981;" id="statOnlineUsers">0</div>
+            <div class="lbl">Watu Walio Hewani Sasa (Online)</div>
+          </div>
+        </div>
+        <!-- GRAPH YA WIKI -->
+        <div class="chart-box">
+          <p style="font-size: 0.72rem; color: #d1d5db; margin-bottom: 6px; text-align: center; font-weight: bold;">📈 Mwenendo wa Matumizi kwa Wiki (Graph)</p>
+          <canvas id="weeklyTrafficChart" style="max-height: 180px;"></canvas>
+        </div>
+      </div>
+      
+      <button id="btnUploadLogo" style="background:#f59e0b; color:#000; font-size:0.75rem; padding:6px; margin-bottom:10px;">🖼️ Badili Nembo ya App</button>
+
+      <!-- SEHEMU YA KOZI -->
+      <div style="background: rgba(255,255,255,0.08); padding: 8px; border-radius:6px; border:1px solid #374151;">
+        <h3 style="font-size:0.8rem; color:#f59e0b; margin-bottom:6px;" id="txtManageCoursesTitle">⚙️ Usimamizi wa Kozi (Ongeza / Punguza)</h3>
+        
+        <input type="text" id="newCourseCode" placeholder="Code ya Kozi (Mfano: BPLM)" style="margin-bottom:4px; color:#000;">
+        <input type="text" id="newCourseName" placeholder="Jina Kamili la Kozi" style="margin-bottom:4px; color:#000;">
+        <button id="btnAddCourseBtn" style="background:#10b981; margin-bottom:8px;">➕ Ongeza Kozi</button>
+        <div id="ownerCoursesList" style="max-height: 150px; overflow-y: auto;"></div>
+      </div>
+    </div>
+
+    <!-- CR PANEL -->
+    <div id="crControlPanel" class="cr-panel" style="display: none;">
+      <p style="font-size:0.75rem; font-weight:bold;" id="txtCrRole">📢 Cheo: CR wa Darasa</p>
+      <p style="font-size:0.68rem; opacity:0.9;" id="txtCrDesc">Una uwezo wa kutuma matangazo kwenye Group la Matangazo.</p>
+    </div>
+    <!-- FLAT TV ADS -->
+    <div class="tv-container">
+      <div class="flat-tv-screen">
+        <div class="ad-slider" id="adSlider">
+          <div class="ad-card">
+            <h4>📺 CAMPUS ADS & MARKETPLACE</h4>
+            <p>Matangazo ya bidhaa za wanafunzi yanaonekana hapa!</p>
+          </div>
+        </div>
+      </div>
+      <div class="tv-brand">FLAT TV ADS</div>
+      <div class="tv-stand"></div>
+    </div>
+    <!-- TAB 1: NOTES -->
+    <div id="tabNotes" class="tab-content">
+      <div class="card-box" id="notesAdminForm" style="display:none;">
+        <h2 id="txtAddNotesTitle">📚 Ongeza Notes za Kozi [MMILIKI PEKEE]</h2>
+        <input type="text" id="noteTitle" placeholder="Kichwa cha Somo">
+        <textarea id="noteDesc" rows="2" placeholder="Maelezo..."></textarea>
+        <button id="saveNoteBtn">Hifadhi Notes</button>
+      </div>
+      <div class="card-box">
+        <h2><span id="txtNotesHeader">📖 Masomo & Topics</span> (<span class="courseTitleLabel"></span>)</h2>
+        <p style="font-size: 0.68rem; color: #d9534f; margin-bottom: 8px;" id="txtProtectedWarn">🔒 Imelindwa: Huwezi ku-download wala ku-screenshot.</p>
+        <div id="notesList"></div>
+      </div>
+    </div>
+    <!-- TAB 2: PAST PAPERS -->
+    <div id="tabPastPapers" class="tab-content" style="display: none;">
+      <div class="card-box" id="papersAdminForm" style="display:none;">
+        <h2 id="txtAddPapersTitle">📄 Ongeza Past Paper [MMILIKI PEKEE]</h2>
+        <input type="text" id="paperTitle" placeholder="Jina la Paper">
+        <textarea id="paperContent" rows="2" placeholder="Maswali ya Exam..."></textarea>
+        <button id="savePaperBtn">Hifadhi Past Paper</button>
+      </div>
+      <div class="card-box">
+        <h2><span id="txtPapersHeader">📄 Past Papers</span> (<span class="courseTitleLabel"></span>)</h2>
+        <div id="papersList"></div>
+      </div>
+    </div>
+    <!-- TAB 3: GROUPS -->
+    <div id="tabGroup" class="tab-content" style="display: none;">
+      <div class="group-tab-bar">
+        <button class="group-tab-btn active-group" id="btnGroupAnnounce" onclick="switchGroupType('announcement')">📢 Matangazo</button>
+        <button class="group-tab-btn" id="btnGroupChat" onclick="switchGroupType('discussion')">💬 Discussion</button>
+      </div>
+      <div class="whatsapp-container">
+        <div class="whatsapp-header">
+          <span id="groupTitleHeader">📢 Matangazo: <span class="courseTitleLabel"></span></span>
+          <span style="font-size: 0.65rem; opacity: 0.8;" id="groupSubtitle">V.I.P Group</span>
+        </div>
+        <div class="whatsapp-chat-box" id="postsList"></div>
+        <div id="replyPreviewBox" style="display:none; background:#e2e8f0; padding:4px 8px; border-left:3px solid #075e54; font-size:0.7rem; margin-top:5px; border-radius:4px;">
+          <span style="font-weight:bold;" id="replyAuthor"></span>: <span id="replyTextPreview"></span>
+          <span onclick="cancelReply()" style="float:right; color:red; cursor:pointer; font-weight:bold;">✕</span>
+        </div>
+        <div class="chat-input-area" id="chatInputArea">
+          <button class="chat-icon-btn" onclick="alert('📸 Picha/Mafaili imefunguka.')">📎</button>
+          <textarea id="postText" placeholder="Andika ujumbe..."></textarea>
+          <button class="chat-icon-btn" onclick="alert('🎤 Shikilia kurekodi Voice Note...')">🎤</button>
+          <button id="savePostBtn" style="width:auto; padding:8px 12px; background:#075e54; margin-bottom:0;">Tuma</button>
+        </div>
+      </div>
+      <div id="studentNotice" style="background: #e2e8f0; color: #475569; padding: 8px; border-radius: 6px; font-size: 0.7rem; text-align: center; margin-top: 8px; display:none;">
+        🔒 Group Mode: CR na Mmiliki pekee ndio wanaoweza kutuma matangazo!
+      </div>
+    </div>
+    <!-- TAB 4: SOKO -->
+    <div id="tabMarketplace" class="tab-content" style="display: none;">
+      <div class="card-box">
+        <h2 id="txtMarketAddTitle">🛒 Weka Bidhaa Sokoni</h2>
+        <input type="text" id="itemTitle" placeholder="Jina la Bidhaa">
+        <input type="text" id="itemPrice" placeholder="Bei (Mfano: TSH 15,000)">
+        <input type="tel" id="itemContact" placeholder="Namba ya Simu / WhatsApp">
+        
+        <label style="font-size:0.72rem; font-weight:bold; color:#004488;" id="lblUploadMedia">📸/🎥 Pakia Picha au Video (Kutoka Gallery):</label>
+        <input type="file" id="itemMediaInput" accept="image/*,video/*" style="padding:4px; font-size:0.75rem;">
+        <p style="font-size:0.65rem; color:#666; margin-top:-4px; margin-bottom:8px;" id="txtVideoNote">⚠️ Note: Video haipaswi kuzidi **sekunde 30**!</p>
+        <button id="saveMarketBtn">Weka Sokoni</button>
+      </div>
+      <div class="card-box">
+        <h2 id="txtMarketTitle">🛒 Bidhaa Sokoni</h2>
+        <div id="marketList"></div>
+      </div>
+    </div>
+    <!-- TAB 5: PROFILE -->
+    <div id="tabProfile" class="tab-content" style="display: none;">
+      <div class="card-box" style="text-align: center;">
+        <div style="font-size: 2.2rem; margin-bottom: 6px;">👤</div>
+        <h2 id="profileName">--</h2>
+        <p style="font-size:0.78rem; color:#555;" id="profileCourse">--</p>
+        <p style="font-size:0.78rem; color:#555;" id="profileYear">--</p>
+        <p style="font-size:0.78rem; color:#d9534f; font-weight:bold; margin-top:4px;" id="profileRole">--</p>
+        <br>
+        <button style="background:#d9534f;" id="logoutBtn">🚪 Toka / Badili Account</button>
+      </div>
+    </div>
+    <!-- MENU YA CHINI -->
+    <div class="bottom-nav">
+      <div class="nav-item active" onclick="switchTab('tabNotes', this)"><span class="icon">📚</span><span id="navNotes">Notes</span></div>
+      <div class="nav-item" onclick="switchTab('tabPastPapers', this)"><span class="icon">📄</span><span id="navPapers">Papers</span></div>
+      <div class="nav-item" onclick="switchTab('tabGroup', this)"><span class="icon">💬</span><span id="navGroup">Group</span></div>
+      <div class="nav-item" onclick="switchTab('tabMarketplace', this)"><span class="icon">🛒</span><span id="navMarket">Soko</span></div>
+      <div class="nav-item" onclick="switchTab('tabProfile', this)"><span class="icon">👤</span><span id="navProfile">Profile</span></div>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, where, updateDoc, doc, setDoc, deleteDoc, increment } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    const firebaseConfig = {
+      apiKey: "AIzaSyDoqJWQxEumT2dc8-JGT9CwpkUFg9Lnn8M",
+      authDomain: "nit-min-super-app-f8292.firebaseapp.com",
+      projectId: "nit-min-super-app-f8292",
+      storageBucket: "nit-min-super-app-f8292.appspot.com",
+      messagingSenderId: "247262558352",
+      appId: "1:247262558352"
+    };
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const notesRef = collection(db, "student_notes");
+    const papersRef = collection(db, "past_papers");
+    const postsRef = collection(db, "community_posts");
+    const marketRef = collection(db, "marketplace_items");
+    const coursesRef = collection(db, "app_courses");
+    const usersRef = collection(db, "app_users");
+    const analyticsRef = collection(db, "weekly_analytics");
+    
+    const OWNER_SECRET_PASSWORD = "admin1234";
+    let currentUser = null;
+    let currentGroupType = "announcement";
+    let currentReplyData = null;
+    let currentLang = "sw";
+    let weeklyChart = null;
+
+    const translations = {
+      sw: {
+        subHeader: "Portal & Campus Community",
+        regTitle: "👤 Usajili Au Kuingia Kwenye App",
+        fullName: "Majina Matatu (Herufi Kubwa):",
+        phone: "Namba ya Simu (Tanzania):",
+        email: "Gmail Account:",
+        selectCourse: "Chagua Kozi Yako:",
+        selectYear: "Mwaka wa Masomo:",
+        selectRole: "Chagua Cheo Chako:",
+        ownerPass: "🔑 Weka Nenosiri la Mmiliki (Password):",
+        crPass: "🔑 Password ya CR (Jina la Mwisho Kubwa + 1234):",
+        registerBtn: "Ingia Kwenye App",
+        ownerHeader: "👑 MMILIKI WA WEB (SUPER ADMIN DASHBOARD)",
+        ownerSub: "Una mamlaka kamili ya kuweka Notes, Past Papers, Kozi na Kubadili Nembo.",
+        manageCourses: "⚙️ Usimamizi wa Kozi (Ongeza / Punguza)",
+        crRole: "📢 Cheo: CR wa Darasa",
+        crDesc: "Una uwezo wa kutuma matangazo kwenye Group la Matangazo.",
+        addNotesTitle: "📚 Ongeza Notes za Kozi [MMILIKI PEKEE]",
+        notesHeader: "📖 Masomo & Topics",
+        protectedWarn: "🔒 Imelindwa: Huwezi ku-download wala ku-screenshot.",
+        addPapersTitle: "📄 Ongeza Past Paper [MMILIKI PEKEE]",
+        papersHeader: "📄 Past Papers",
+        marketAddTitle: "🛒 Weka Bidhaa Sokoni",
+        uploadMedia: "📸/🎥 Pakia Picha au Video (Kutoka Gallery):",
+        videoNote: "⚠️ Note: Video haipaswi kuzidi sekunde 30!",
+        marketTitle: "🛒 Bidhaa Sokoni",
+        navNotes: "Notes",
+        navPapers: "Papers",
+        navGroup: "Group",
+        navMarket: "Soko",
+        navProfile: "Profile"
+      },
+      en: {
+        subHeader: "Portal & Campus Community",
+        regTitle: "👤 Registration or Login",
+        fullName: "Full Name (In Capital Letters):",
+        phone: "Phone Number (Tanzania):",
+        email: "Gmail Account:",
+        selectCourse: "Select Your Course:",
+        selectYear: "Academic Year:",
+        selectRole: "Select Your Role:",
+        ownerPass: "🔑 Enter Web Owner Password:",
+        crPass: "🔑 CR Password (Last Name Uppercase + 1234):",
+        registerBtn: "Login To App",
+        ownerHeader: "👑 WEB OWNER (SUPER ADMIN DASHBOARD)",
+        ownerSub: "You have full control to manage Notes, Papers, Courses, and Logo.",
+        manageCourses: "⚙️ Manage Courses (Add / Remove)",
+        crRole: "📢 Role: Class CR",
+        crDesc: "You can post announcements in the Official Group.",
+        addNotesTitle: "📚 Add Course Notes [WEB OWNER ONLY]",
+        notesHeader: "📖 Subjects & Topics",
+        protectedWarn: "🔒 Protected: Download and Screenshot disabled.",
+        addPapersTitle: "📄 Add Past Paper [WEB OWNER ONLY]",
+        papersHeader: "📄 Past Papers",
+        marketAddTitle: "🛒 Post Item in Market",
+        uploadMedia: "📸/🎥 Upload Photo or Video (From Gallery):",
+        videoNote: "⚠️ Note: Video length must not exceed 30 seconds!",
+        marketTitle: "🛒 Marketplace Items",
+        navNotes: "Notes",
+        navPapers: "Papers",
+        navGroup: "Group",
+        navMarket: "Market",
+        navProfile: "Profile"
+      }
+    };
+
+    document.getElementById('languageSelect').addEventListener('change', (e) => {
+      currentLang = e.target.value;
+      applyLanguage();
+    });
+
+    function applyLanguage() {
+      const t = translations[currentLang];
+      document.getElementById('txtSubHeader').innerText = t.subHeader;
+      document.getElementById('txtRegTitle').innerText = t.regTitle;
+      document.getElementById('lblFullName').innerText = t.fullName;
+      document.getElementById('lblPhone').innerText = t.phone;
+      document.getElementById('lblEmail').innerText = t.email;
+      document.getElementById('lblCourseSelect').innerText = t.selectCourse;
+      document.getElementById('lblYearSelect').innerText = t.selectYear;
+      document.getElementById('lblRoleSelect').innerText = t.selectRole;
+      document.getElementById('lblOwnerPass').innerText = t.ownerPass;
+      document.getElementById('lblCrPass').innerText = t.crPass;
+      document.getElementById('registerBtn').innerText = t.registerBtn;
+      document.getElementById('txtOwnerHeader').innerText = t.ownerHeader;
+      document.getElementById('txtOwnerSub').innerText = t.ownerSub;
+      document.getElementById('txtManageCoursesTitle').innerText = t.manageCourses;
+      document.getElementById('txtCrRole').innerText = t.crRole;
+      document.getElementById('txtCrDesc').innerText = t.crDesc;
+      document.getElementById('txtAddNotesTitle').innerText = t.addNotesTitle;
+      document.getElementById('txtNotesHeader').innerText = t.notesHeader;
+      document.getElementById('txtProtectedWarn').innerText = t.protectedWarn;
+      document.getElementById('txtAddPapersTitle').innerText = t.addPapersTitle;
+      document.getElementById('txtPapersHeader').innerText = t.papersHeader;
+      document.getElementById('txtMarketAddTitle').innerText = t.marketAddTitle;
+      document.getElementById('lblUploadMedia').innerText = t.uploadMedia;
+      document.getElementById('txtVideoNote').innerText = t.videoNote;
+      document.getElementById('txtMarketTitle').innerText = t.marketTitle;
+      document.getElementById('navNotes').innerText = t.navNotes;
+      document.getElementById('navPapers').innerText = t.navPapers;
+      document.getElementById('navGroup').innerText = t.navGroup;
+      document.getElementById('navMarket').innerText = t.navMarket;
+      document.getElementById('navProfile').innerText = t.navProfile;
+    }
+
+    /* MFUMO WA KUFATILIA USER ACTIVE & ANALYTICS */
+    async function trackUserPresenceAndActivity(user) {
+      if (!user || !user.gmail) return;
+      const userDocId = user.gmail.replace(/[^a-zA-Z0-9]/g, "_");
+      
+      // Update User Status & Last Active Timestamp
+      await setDoc(doc(db, "app_users", userDocId), {
+        name: user.name,
+        gmail: user.gmail,
+        role: user.role,
+        course: user.course,
+        lastActive: Date.now()
+      }, { merge: true });
+
+      // Track Weekly Traffic
+      const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+      const currentDay = days[new Date().getDay()];
+      await setDoc(doc(db, "weekly_analytics", currentDay), {
+        count: increment(1)
+      }, { merge: true });
+
+      // Heartbeat pulse every 30 seconds to maintain online state
+      setInterval(async () => {
+        await updateDoc(doc(db, "app_users", userDocId), {
+          lastActive: Date.now()
+        });
+      }, 30000);
+    }
+
+    /* LOAD OWNER ANALYTICS AND GRAPH */
+    function initOwnerAnalytics() {
+      // 1. Total Registered Users & Realtime Active Users
+      onSnapshot(usersRef, (snapshot) => {
+        const total = snapshot.size;
+        document.getElementById('statTotalUsers').innerText = total;
+
+        const now = Date.now();
+        let onlineCount = 0;
+        snapshot.forEach(docSnap => {
+          const userData = docSnap.data();
+          // Active within last 2 minutes (120,000ms)
+          if (userData.lastActive && (now - userData.lastActive) < 120000) {
+            onlineCount++;
+          }
+        });
+        document.getElementById('statOnlineUsers').innerText = onlineCount;
+      });
+
+      // 2. Weekly Traffic Graph (Chart.js)
+      const daysOfWeek = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+      onSnapshot(analyticsRef, (snapshot) => {
+        const trafficData = { Mon: 0, Tue: 0, Wed: 0, Thu: 0, Fri: 0, Sat: 0, Sun: 0 };
+        snapshot.forEach(docSnap => {
+          if (trafficData[docSnap.id] !== undefined) {
+            trafficData[docSnap.id] = docSnap.data().count || 0;
+          }
+        });
+
+        const chartValues = daysOfWeek.map(day => trafficData[day]);
+        
+        const ctx = document.getElementById('weeklyTrafficChart').getContext('2d');
+        if (weeklyChart) weeklyChart.destroy(); // Re-render graph on update
+
+        weeklyChart = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: daysOfWeek,
+            datasets: [{
+              label: 'Watu Walioingia',
+              data: chartValues,
+              borderColor: '#f59e0b',
+              backgroundColor: 'rgba(245, 158, 11, 0.2)',
+              fill: true,
+              tension: 0.3,
+              pointBackgroundColor: '#f59e0b'
+            }]
+          },
+          options: {
+            responsive: true,
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: { color: '#9ca3af', precision: 0 },
+                grid: { color: '#374151' }
+              },
+              x: {
+                ticks: { color: '#9ca3af' },
+                grid: { color: '#374151' }
+              }
+            },
+            plugins: {
+              legend: { display: false }
+            }
+          }
+        });
+      });
+    }
+
+    function listenForCourses() {
+      onSnapshot(coursesRef, (snapshot) => {
+        const select = document.getElementById('studentCourse');
+        const ownerList = document.getElementById('ownerCoursesList');
+        
+        if (ownerList) ownerList.innerHTML = '';
+        snapshot.forEach((docSnap) => {
+          const c = docSnap.data();
+          const docId = docSnap.id;
+          
+          const optionExists = Array.from(select.options).some(opt => opt.value.includes(c.code));
+          if (!optionExists) {
+            select.innerHTML += `<option value="${c.code} - ${c.name}">${c.code} - ${c.name}</option>`;
+          }
+          if (ownerList) {
+            ownerList.innerHTML += `
+              <div class="course-manage-item">
+                <span><strong>${c.code}</strong>: ${c.name}</span>
+                <button class="btn-delete-course" onclick="deleteCourse('${docId}')">✕</button>
+              </div>`;
+          }
+        });
+      });
+    }
+
+    document.getElementById('btnAddCourseBtn')?.addEventListener('click', async () => {
+      const code = document.getElementById('newCourseCode').value.trim().toUpperCase();
+      const name = document.getElementById('newCourseName').value.trim();
+      if (!code || !name) return alert("Tafadhali jaza Code na Jina la Kozi!");
+      await addDoc(coursesRef, { code, name });
+      document.getElementById('newCourseCode').value = '';
+      document.getElementById('newCourseName').value = '';
+      alert("✅ Kozi mpya imeongezwa!");
+    });
+
+    window.deleteCourse = async function(docId) {
+      if (confirm("Je, una uhakika unataka kufuta kozi hii?")) {
+        await deleteDoc(doc(db, "app_courses", docId));
+        alert("🗑️ Kozi imeondolewa!");
+      }
+    };
+
+    function listenForAppLogo() {
+      onSnapshot(doc(db, "app_settings", "logo_config"), (docSnap) => {
+        if (docSnap.exists() && docSnap.data().logoUrl) {
+          document.getElementById('appLogo').src = docSnap.data().logoUrl;
+        }
+      });
+    }
+
+    document.getElementById('userRoleSelect').addEventListener('change', (e) => {
+      const passOwnerGroup = document.getElementById('ownerPasswordGroup');
+      const passCrGroup = document.getElementById('crPasswordGroup');
+      
+      if (e.target.value === 'owner') {
+        passOwnerGroup.style.display = 'block';
+        passCrGroup.style.display = 'none';
+      } else if (e.target.value === 'cr') {
+        passCrGroup.style.display = 'block';
+        passOwnerGroup.style.display = 'none';
+      } else {
+        passOwnerGroup.style.display = 'none';
+        passCrGroup.style.display = 'none';
+      }
+    });
+
+    window.switchTab = function(tabId, element) {
+      document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+      document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+      document.getElementById(tabId).style.display = 'block';
+      element.classList.add('active');
+    };
+
+    window.switchGroupType = function(type) {
+      currentGroupType = type;
+      document.getElementById('btnGroupAnnounce').classList.toggle('active-group', type === 'announcement');
+      document.getElementById('btnGroupChat').classList.toggle('active-group', type === 'discussion');
+      updateGroupPermissions();
+      loadGroupPosts();
+    };
+
+    function checkUserSession() {
+      listenForCourses();
+      const savedUser = localStorage.getItem('nit_student_user');
+      if (savedUser) {
+        currentUser = JSON.parse(savedUser);
+        showDashboard();
+      } else {
+        document.getElementById('registrationScreen').style.display = 'block';
+        document.getElementById('appDashboard').style.display = 'none';
+      }
+      listenForAppLogo();
+    }
+
+    document.getElementById('registerBtn').addEventListener('click', async () => {
+      const nameInput = document.getElementById('studentName').value.trim();
+      const phoneInput = document.getElementById('studentPhone').value.trim();
+      const emailInput = document.getElementById('studentGmail').value.trim();
+      const course = document.getElementById('studentCourse').value;
+      const year = document.getElementById('studentYear').value;
+      const role = document.getElementById('userRoleSelect').value;
+      const nameParts = nameInput.split(/\s+/);
+      const isAllUppercase = nameInput === nameInput.toUpperCase();
+      if (nameParts.length < 3 || !isAllUppercase) {
+        return alert("⚠️ Inatakiwa majina 3 kamili kwa HERUFI KUBWA tu!");
+      }
+      const lastName = nameParts[nameParts.length - 1];
+      const expectedCrPassword = lastName + "1234";
+      if (role === 'owner') {
+        const pass = document.getElementById('ownerPasswordInput').value.trim();
+        if (pass !== OWNER_SECRET_PASSWORD) return alert("❌ Password ya Mmiliki sio sahihi!");
+      } else if (role === 'cr') {
+        const crPass = document.getElementById('crPasswordInput').value.trim();
+        if (crPass !== expectedCrPassword) return alert(`❌ Password ya CR lazima iwe: ${expectedCrPassword}`);
+      }
+      currentUser = { 
+        name: nameInput, phone: phoneInput, gmail: emailInput, course, year, role,
+        isOwner: role === 'owner', isCR: role === 'cr'
+      };
+      localStorage.setItem('nit_student_user', JSON.stringify(currentUser));
+      showDashboard();
+    });
+
+    document.getElementById('changeUserBtn').addEventListener('click', logoutAndReset);
+    document.getElementById('logoutBtn').addEventListener('click', logoutAndReset);
+
+    function logoutAndReset() {
+      if (confirm("Je, una uhakika unataka kutoka?")) {
+        localStorage.clear();
+        currentUser = null;
+        document.getElementById('appDashboard').style.display = 'none';
+        document.getElementById('registrationScreen').style.display = 'block';
+      }
+    }
+
+    function showDashboard() {
+      document.getElementById('registrationScreen').style.display = 'none';
+      document.getElementById('appDashboard').style.display = 'block';
+      document.getElementById('displayName').innerText = currentUser.name;
+      document.getElementById('displayCourse').innerText = "Kozi: " + currentUser.course;
+      document.getElementById('displayYear').innerText = currentUser.year;
+      
+      const roleBadge = document.getElementById('roleBadge');
+      const logoEditBadge = document.getElementById('logoEditBadge');
+
+      trackUserPresenceAndActivity(currentUser);
+
+      if (currentUser.isOwner) {
+        roleBadge.innerText = "WEB OWNER";
+        roleBadge.className = "badge badge-owner";
+        logoEditBadge.style.display = "block";
+        document.getElementById('ownerControlPanel').style.display = 'block';
+        document.getElementById('notesAdminForm').style.display = 'block';
+        document.getElementById('papersAdminForm').style.display = 'block';
+        initOwnerAnalytics(); // Anzisha Takwimu za Mmiliki
+      } else if (currentUser.isCR) {
+        roleBadge.innerText = "CLASS CR";
+        roleBadge.className = "badge badge-cr";
+        document.getElementById('crControlPanel').style.display = 'block';
+      } else {
+        roleBadge.innerText = "MWANAFUNZI";
+      }
+
+      document.querySelectorAll('.courseTitleLabel').forEach(el => el.innerText = currentUser.course);
+      document.getElementById('profileName').innerText = currentUser.name;
+      document.getElementById('profileCourse').innerText = "Kozi: " + currentUser.course;
+      document.getElementById('profileYear').innerText = "Mwaka: " + currentUser.year;
+      updateGroupPermissions();
+      loadGroupPosts();
+      loadNotes();
+      loadPastPapers();
+      loadMarketplace();
+    }
+
+    const logoImg = document.getElementById('appLogo');
+    const logoFileInput = document.getElementById('logoFileInput');
+    logoImg.addEventListener('click', () => {
+      if (currentUser && currentUser.isOwner) logoFileInput.click();
+      else alert("🔒 Ni Mmiliki wa Web pekee anayeruhusiwa kubadili nembo!");
+    });
+
+    document.getElementById('btnUploadLogo')?.addEventListener('click', () => logoFileInput.click());
+    logoFileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const logoBase64 = await readFileAsBase64(file);
+      await setDoc(doc(db, "app_settings", "logo_config"), { logoUrl: logoBase64, updatedAt: Date.now() });
+      alert("✅ Nembo imebadilishwa kikamilifu!");
+    });
+
+    function updateGroupPermissions() {
+      const inputArea = document.getElementById('chatInputArea');
+      const studentNotice = document.getElementById('studentNotice');
+      if (currentGroupType === 'announcement') {
+        const canPost = currentUser.isOwner || currentUser.isCR;
+        inputArea.style.display = canPost ? 'flex' : 'none';
+        studentNotice.style.display = canPost ? 'none' : 'block';
+      } else {
+        inputArea.style.display = 'flex';
+        studentNotice.style.display = 'none';
+      }
+    }
+
+    document.getElementById('savePostBtn')?.addEventListener('click', async () => {
+      const text = document.getElementById('postText').value.trim();
+      if (!text) return alert("Andika ujumbe!");
+      let senderTitle = currentUser.isOwner ? "Mmiliki wa Web" : currentUser.isCR ? "CR wa Darasa" : "Mwanafunzi";
+      const postData = { 
+        course: currentUser.course, groupType: currentGroupType, text, 
+        author: currentUser.name + " (" + senderTitle + ")", senderName: currentUser.name,
+        likes: 0, hearts: 0, fire: 0, createdAt: Date.now()
+      };
+      if (currentReplyData) postData.replyTo = currentReplyData;
+      await addDoc(postsRef, postData);
+      document.getElementById('postText').value = '';
+      cancelReply();
+    });
+
+    window.setReply = function(author, text) {
+      currentReplyData = { author, text };
+      document.getElementById('replyAuthor').innerText = author;
+      document.getElementById('replyTextPreview').innerText = text;
+      document.getElementById('replyPreviewBox').style.display = 'block';
+    };
+
+    window.cancelReply = function() {
+      currentReplyData = null;
+      document.getElementById('replyPreviewBox').style.display = 'none';
+    };
+
+    function loadGroupPosts() {
+      const q = query(postsRef, where("course", "==", currentUser.course));
+      onSnapshot(q, (snapshot) => {
+        const list = document.getElementById('postsList');
+        list.innerHTML = '';
+        snapshot.forEach(docSnap => {
+          const d = docSnap.data();
+          const docId = docSnap.id;
+          if (d.groupType === currentGroupType) {
+            const isMyMsg = d.senderName === currentUser.name;
+            let replyHTML = d.replyTo ? `<div class="quoted-reply"><strong>${d.replyTo.author}:</strong> ${d.replyTo.text}</div>` : '';
+            list.innerHTML += `
+              <div class="chat-bubble ${isMyMsg ? 'my-msg' : (d.author.includes('CR') || d.author.includes('Mmiliki')) ? 'admin-msg' : ''}">
+                <div class="chat-author">📢 ${d.author}</div>
+                ${replyHTML}
+                <div class="chat-text">${d.text}</div>
+                <div class="emoji-reaction-bar">
+                  <button class="emoji-btn" onclick="reactToPost('${docId}', 'likes')">👍 ${d.likes || 0}</button>
+                  <button class="emoji-btn" onclick="reactToPost('${docId}', 'hearts')">❤️ ${d.hearts || 0}</button>
+                  <button class="emoji-btn" onclick="reactToPost('${docId}', 'fire')">🔥 ${d.fire || 0}</button>
+                  <span class="reply-btn-text" onclick="setReply('${d.senderName || d.author}', '${d.text}')">↩️ Reply</span>
+                </div>
+              </div>`;
+          }
+        });
+      });
+    }
+
+    window.reactToPost = async function(docId, field) {
+      await updateDoc(doc(db, "community_posts", docId), { [field]: increment(1) });
+    };
+
+    document.getElementById('saveNoteBtn')?.addEventListener('click', async () => {
+      const title = document.getElementById('noteTitle').value.trim();
+      const desc = document.getElementById('noteDesc').value.trim();
+      if (!title || !desc) return alert("Jaza vyote!");
+      await addDoc(notesRef, { course: currentUser.course, title, description: desc });
+      document.getElementById('noteTitle').value = '';
+      document.getElementById('noteDesc').value = '';
+    });
+
+    function loadNotes() {
+      const q = query(notesRef, where("course", "==", currentUser.course));
+      onSnapshot(q, (snapshot) => {
+        const list = document.getElementById('notesList');
+        list.innerHTML = snapshot.empty ? '<p style="font-size:0.75rem; color:#777;">Hakuna notes zilizowekwa bado.</p>' : '';
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          list.innerHTML += `
+            <div class="protected-box">
+              <div class="watermark-overlay">PROTECTED - ${currentUser.name}</div>
+              <span class="badge">${d.course}</span>
+              <h3 style="font-size:0.82rem; margin:4px 0;">${d.title}</h3>
+              <p style="font-size:0.75rem;">${d.description}</p>
+            </div>`;
+        });
+      });
+    }
+
+    document.getElementById('savePaperBtn')?.addEventListener('click', async () => {
+      const title = document.getElementById('paperTitle').value.trim();
+      const content = document.getElementById('paperContent').value.trim();
+      if (!title || !content) return alert("Jaza vyote!");
+      await addDoc(papersRef, { course: currentUser.course, title, content });
+      document.getElementById('paperTitle').value = '';
+      document.getElementById('paperContent').value = '';
+    });
+
+    function loadPastPapers() {
+      const q = query(papersRef, where("course", "==", currentUser.course));
+      onSnapshot(q, (snapshot) => {
+        const list = document.getElementById('papersList');
+        list.innerHTML = snapshot.empty ? '<p style="font-size:0.75rem; color:#777;">Hakuna papers zilizowekwa bado.</p>' : '';
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          list.innerHTML += `
+            <div class="protected-box">
+              <div class="watermark-overlay">PROTECTED - ${currentUser.name}</div>
+              <span class="badge" style="background:#28a745;">Paper</span>
+              <h3 style="font-size:0.82rem; margin:4px 0;">${d.title}</h3>
+              <p style="font-size:0.75rem;">${d.content}</p>
+            </div>`;
+        });
+      });
+    }
+
+    document.getElementById('saveMarketBtn').addEventListener('click', async () => {
+      const title = document.getElementById('itemTitle').value.trim();
+      const price = document.getElementById('itemPrice').value.trim();
+      const contact = document.getElementById('itemContact').value.trim();
+      const fileInput = document.getElementById('itemMediaInput');
+      const file = fileInput.files[0];
+      if (!title || !price || !contact) return alert("Jaza vyote!");
+      let mediaUrl = "", mediaType = "";
+      if (file) {
+        if (file.type.startsWith('video/')) {
+          const duration = await getVideoDuration(file);
+          if (duration > 30) return alert("❌ Video inazidi sekunde 30!");
+          mediaType = "video";
+        } else {
+          mediaType = "image";
+        }
+        mediaUrl = await readFileAsBase64(file);
+      }
+      await addDoc(marketRef, { title, price, contact, seller: currentUser.name, mediaUrl, mediaType, createdAt: Date.now() });
+      document.getElementById('itemTitle').value = '';
+      document.getElementById('itemPrice').value = '';
+      document.getElementById('itemContact').value = '';
+      fileInput.value = '';
+      alert("✅ Bidhaa imewekwa sokoni!");
+    });
+
+    function getVideoDuration(file) {
+      return new Promise((resolve) => {
+        const video = document.createElement('video');
+        video.preload = 'metadata';
+        video.onloadedmetadata = function() {
+          window.URL.revokeObjectURL(video.src);
+          resolve(video.duration);
+        };
+        video.src = URL.createObjectURL(file);
+      });
+    }
+
+    function readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function loadMarketplace() {
+      onSnapshot(marketRef, (snapshot) => {
+        const list = document.getElementById('marketList');
+        const adSlider = document.getElementById('adSlider');
+        list.innerHTML = '';
+        snapshot.forEach(doc => {
+          const d = doc.data();
+          let mediaHTML = "", tvMediaHTML = "";
+          if (d.mediaUrl) {
+            if (d.mediaType === 'video') {
+              mediaHTML = `<video src="${d.mediaUrl}" controls class="market-media"></video>`;
+              tvMediaHTML = `<video src="${d.mediaUrl}" autoplay loop muted></video>`;
+            } else {
+              mediaHTML = `<img src="${d.mediaUrl}" class="market-media">`;
+              tvMediaHTML = `<img src="${d.mediaUrl}">`;
+            }
+          }
+          list.innerHTML += `
+            <div class="protected-box" style="border-left:4px solid #004488;">
+              <span class="badge" style="background:#28a745;">${d.price}</span>
+              <h3 style="font-size:0.82rem; margin:2px 0;">${d.title}</h3>
+              <p style="font-size:0.72rem;">Mawasiliano: <strong>${d.contact}</strong> | Muuzaji: ${d.seller}</p>
+              ${mediaHTML}
+            </div>`;
+          adSlider.innerHTML += `
+            <div class="ad-card">
+              <h4>🛒 ${d.title}</h4>
+              <p>Mawasiliano: ${d.contact} | Bei: ${d.price}</p>
+              ${tvMediaHTML}
+            </div>`;
+        });
+      });
+    }
+
+    checkUserSession();
+  </script>
+</body>
+</html>
